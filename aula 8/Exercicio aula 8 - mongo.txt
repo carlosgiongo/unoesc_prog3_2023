@@ -1,0 +1,17 @@
+//1 - Puxar todas as pessoas que possuem curriculo (mongodb)
+db.curriculo.find({})
+
+//2 - Artigos do Jose Palazzo
+db.curriculo.find({nome: 'José Palazzo'}, {artigo:1})
+
+//3 - Siglas e nome dos veiculos
+db.veiculos.find({}, {nome: 1, sigla: 1, _id: 0})
+
+//4 - Apresentar nome do evento com sigla SBBD
+db.veiculo.find({sigla: 'SBBD'}, {nome: 1, _id: 0})
+
+//5 - Liste o nome das pessoas que participam do corpo editorial de um evento a partir de ‘2010’.
+db.curriculo.find({"corpo_editorial.data_inicio": {$gte: 2010}}, {nome: 1, _id: 0})
+
+//6 - Liste os autores que publicaram no ERBD.
+db.curriculo.find({"artigo.veiculo": 1}, {nome: 1, _id: 0})
