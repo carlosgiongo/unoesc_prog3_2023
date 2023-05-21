@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>ChatRoom</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel = "stylesheet" href="style.css">
+	<script>
+		var name = prompt("Please enter your name");
+    var _room = 'Geral'
+	</script>
+</head>
+<body>
+    
+    <div id="intro">
+      <h1>ChatRoom - Selecione uma das salas abaixo</h1>
+    </div>
+
+    <div>
+      <button onclick="changeRoom(`Geral`)">Geral</button>
+      <button onclick="changeRoom(`Sala 1`)">Sala 1</button>
+      <button onclick="changeRoom(`Sala 2`)">Sala 2</button>
+      <button onclick="changeRoom(`Sala 3`)" style="margin-right: 50px;">Sala 3</button>
+      <button onclick="sacudir()">Sacudir</button>
+    </div>
+    
+    <ul id="messages"></ul>
+    
+    <form action="">
+      <input id="m" placeholder="Enter your message..." autocomplete="off" required /><button>Send</button>
+    </form>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
+    <script>
+    	let socket = io();
+
+      //Sockets triggers
+      socket.emit('joining msg', name, 'Geral')
+      
+      socket.on('chat message', function(msg){
+        $('#messages').append($('<li>').text(msg))
+      })
+
+      socket.on(`sacudir`, function(){
+        shake(document.getElementById('messages'))
+      })
+
+      // -----------------------------
+      $('form').submit(function(e){
+        e.preventDefault()
+        socket.emit('chat message', (name + ': ' + $('#m').val()))
+        $('#messages').append($('<li id="list">').text('You: ' + $('#m').val()))
+        $('#m').val('')
+        return false
+      })
+
+      function changeRoom(room){
+        socket.emit('change room', room)
+        _room = room
+        $('#messages').empty()
+      }
+
+      function sacudir(){
+        socket.emit('sacudir', _room)
+      }
+      
+      //Utils
+      function shake(el) {
+        var ang = -10;
+        var prefix = (function () {
+            var styles = window.getComputedStyle(document.documentElement, ''),
+            pre = (Array.prototype.slice.call(styles).join('').match(/-(moz|webkit|ms)-/) || (styles.OLink === '' && ['', 'o']))[1];
+            if (pre == 'moz')
+            return '';
+            return '-' + pre + '-';
+        })();
+        var qtd = 0;
+        var shakeInterval = setInterval(function () {
+            ang = -ang;
+            el.style[prefix + 'transform'] = 'rotate(' + ang + 'deg)';
+            qtd++;
+            if (qtd > 5) {
+                el.style[prefix + 'transform'] = 'rotate(0deg)';
+                clearInterval(shakeInterval);
+            }
+        }, 100);
+      }
+    </script>
+</body>
+</html>
